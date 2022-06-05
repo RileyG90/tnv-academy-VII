@@ -141,6 +141,10 @@ nav li {
     display: block;
 }
 
+.pizza table {
+    border-radius: 5px;
+}
+
 .dish-name {
     font-weight: 600;
 }
