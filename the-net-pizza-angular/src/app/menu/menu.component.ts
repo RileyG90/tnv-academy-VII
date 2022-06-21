@@ -1,30 +1,42 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Piatto } from '../@models/menu';
 import { MenuService } from '../@services/menu.service';
 
 @Component({
   selector: 'app-menu',
   templateUrl: './menu.component.html',
-  styleUrls: ['./menu.component.scss']
+  styleUrls: ['./menu.component.scss'],
 })
 export class MenuComponent implements OnInit {
+  filterText: string = '';
 
-  piattiAntipasti: Piatto[] = [];
-  piattiPrimi: Piatto[] = [];
-  piattiDolci: Piatto[] = [];
+  piatti: Piatto[] = [];
+  filteredPiatti: Piatto[] = [];
+  categories: string[] = [];
 
-  constructor(private menuService: MenuService) {
-  }
+  constructor(private menuService: MenuService) {}
 
   ngOnInit(): void {
-    const getMenuObservable = this.menuService.getMenu()
-    
+    const getMenuObservable = this.menuService.getMenu();
+
     getMenuObservable.subscribe({
       next: (piatti) => {
-        this.piattiAntipasti = piatti.filter(x => x.category === 'antipasti');
-        this.piattiPrimi = piatti.filter(x => x.category === 'primi');
-        this.piattiDolci = piatti.filter(x => x.category === 'dolci');
-      }
+        this.categories = [...new Set(piatti.map(x => x.category))];
+        this.piatti = piatti;
+        this.applyFilter();
+      },
     });
+  }
+
+  getSectionData(category: string) {
+    return this.filteredPiatti.filter(x => x.category === category);
+  }
+
+  applyFilter() {
+    this.filteredPiatti = this.piatti.filter((x) =>
+      x.title.toLowerCase().includes(this.filterText.toLowerCase()) ||
+      x.description.toLowerCase().includes(this.filterText.toLowerCase()) ||
+      x.ingredients.find(x => x.toLowerCase().includes(this.filterText.toLowerCase()))
+    );
   }
 }
